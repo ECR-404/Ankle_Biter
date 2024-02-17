@@ -56,7 +56,7 @@ void initialize() {
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true); // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(0); // Sets the active brake kP. We recommend 0.1.
-  chassis.opcontrol_curve_default_set(2.1, 2.1); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
+  chassis.opcontrol_curve_default_set(0, 0); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
   default_constants(); // Set the drive to your own constants from autons.cpp!
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
@@ -65,9 +65,9 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-    Auton("Defensive Side Auton\n\n", defensive_side),
     Auton("Offensive Side Auton\n\n", offensive_side),
-    Auton("Skills Auton\n\n", skills)
+    Auton("Defensive Side Auton\n\n", defensive_side)
+    //Auton("Skills Auton\n\n", skills)
   });
 
   // Initialize chassis and auton selector
@@ -129,16 +129,18 @@ void transmissioncontrol() {
 
   if(master.get_digital_new_press(DIGITAL_DOWN)) {
 
+    motors.move_velocity(0);
+
     if(intake) {
 
-      motors.move_velocity(10);
+      motors.move_velocity(5);
 
     }
 
     transmission.set_value(!intake);
     intake = !intake;
 
-    pros::delay(500);
+    pros::delay(1500);
 
     motors.move_velocity(0);
 
@@ -152,11 +154,13 @@ void intakecontrol() {
 
     motors.move_velocity(200);
 
-  } else if (master.get_digital(DIGITAL_L1)) {
+  }
+  if (master.get_digital(DIGITAL_L1)) {
     
     motors.move_velocity(-200);
     
-  } else {
+  }
+  if (master.get_digital(DIGITAL_A) || master.get_digital(DIGITAL_B)) {
 
     motors.move_velocity(0);
 
@@ -169,12 +173,11 @@ void catapultcontrol()
 
   if (master.get_digital(DIGITAL_R1)) {
 
-    motors.move_velocity(150);
+    motors.move_velocity(85);
 
-  } else if (cataSw.get_value() || master.get_digital(DIGITAL_A)) {
+  } else if (cataSw.get_value() || master.get_digital(DIGITAL_A) || master.get_digital(DIGITAL_B)) {
 
     motors.move_velocity(0);
-    pros::delay(500);
     
   }
 }
@@ -217,23 +220,6 @@ void opcontrol() {
   motors.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
   
   while (true) {
-    
-    // PID Tuner
-    // After you find values that you're happy with, you'll have to set them in auton.cpp
-    if (!pros::competition::is_connected()) { 
-      // Enable / Disable PID Tuner
-      //  When enabled: 
-      //  * use A and Y to increment / decrement the constants
-      //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_LEFT)) 
-        chassis.pid_tuner_toggle();
-        
-      // Trigger the selected autonomous routine
-      if (master.get_digital_new_press(DIGITAL_UP)) 
-        autonomous();
-
-      chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
-    } 
 
     // chassis.opcontrol_tank(); // Tank control
     chassis.opcontrol_arcade_standard(ez::SPLIT); // Standard split arcade
@@ -241,7 +227,7 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
-    if(master.get_digital_new_press(DIGITAL_RIGHT)) {
+    if(master.get_digital_new_press(DIGITAL_RIGHT) || master.get_digital_new_press(DIGITAL_UP)) {
 
       chassis.opcontrol_drive_reverse_set(!chassis.opcontrol_drive_reverse_get());
 
