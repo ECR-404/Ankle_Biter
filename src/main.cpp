@@ -22,7 +22,7 @@ ez::Drive chassis (
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,4.125
 
-  // Cartridge RPM
+  // Cartridge RPM 
   ,200
 
   // External Gear Ratio (MUST BE DECIMAL) This is WHEEL GEAR / MOTOR GEAR
@@ -127,11 +127,11 @@ void autonomous() {
 
 void transmissioncontrol() {
 
-  if(master.get_digital_new_press(DIGITAL_X)) {
+  if(master.get_digital_new_press(DIGITAL_DOWN)) {
 
     if(intake) {
 
-      motors.move_velocity(25);
+      motors.move_velocity(10);
 
     }
 
@@ -150,11 +150,11 @@ void intakecontrol() {
 
   if (master.get_digital(DIGITAL_R1)) {
 
-    motors.move_velocity(100);
+    motors.move_velocity(200);
 
   } else if (master.get_digital(DIGITAL_L1)) {
     
-    motors.move_velocity(-100);
+    motors.move_velocity(-200);
     
   } else {
 
@@ -169,11 +169,12 @@ void catapultcontrol()
 
   if (master.get_digital(DIGITAL_R1)) {
 
-    motors.move_velocity(100);
+    motors.move_velocity(150);
 
-  } else if (cataSw.get_value() || master.get_digital(DIGITAL_B)) {
+  } else if (cataSw.get_value() || master.get_digital(DIGITAL_A)) {
 
     motors.move_velocity(0);
+    pros::delay(500);
     
   }
 }
@@ -189,7 +190,7 @@ void wingcontrol()
   {
     rightwing = !rightwing;
   }
-  if (master.get_digital_new_press(DIGITAL_L1))
+  if (false) //master.get_digital_new_press(DIGITAL_Y))
   {
     leftwing = !leftwing;
     rightwing = leftwing;
@@ -224,11 +225,11 @@ void opcontrol() {
       //  When enabled: 
       //  * use A and Y to increment / decrement the constants
       //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_RIGHT)) 
+      if (master.get_digital_new_press(DIGITAL_LEFT)) 
         chassis.pid_tuner_toggle();
         
       // Trigger the selected autonomous routine
-      if (master.get_digital_new_press(DIGITAL_LEFT)) 
+      if (master.get_digital_new_press(DIGITAL_UP)) 
         autonomous();
 
       chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
@@ -240,7 +241,11 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
-    if(master.get_digital_new_press(DIGITAL_UP)) {
+    if(master.get_digital_new_press(DIGITAL_RIGHT)) {
+
+      chassis.opcontrol_drive_reverse_set(!chassis.opcontrol_drive_reverse_get());
+
+    }
 
     transmissioncontrol(); // Transmission
 

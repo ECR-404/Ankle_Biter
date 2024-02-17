@@ -42,7 +42,7 @@ void setwings(bool left, bool right) {
 void offensive_side() {
 
   motors.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-  motors.move_velocity(100);
+  motors.move_velocity(200);
   
   chassis.pid_swing_set(ez::LEFT_SWING, 45, SWING_SPEED);
   chassis.pid_wait();
